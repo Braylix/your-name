@@ -128,7 +128,7 @@ function deviceInfo(){
 
 /* ========== 3. Supabase (configura estas 2 líneas) ========== */
 const SB_URL='https://mjbfqpvaymdbniiflquo.supabase.co';
-const SB_KEY='PEGA_AQUI_TU_PUBLISHABLE_KEY'; // clave pública (publishable / anon), NUNCA la secret
+const SB_KEY='sb_publishable_WWUhF8oyKHeQyVa_qfDFSA_4SM1QyLJ'; // clave pública (publishable / anon), NUNCA la secret
 let TOKEN=null;
 // Lectura (requiere login del dueño)
 async function sb(path){const r=await fetch(SB_URL+path,{headers:{apikey:SB_KEY,Authorization:'Bearer '+TOKEN}});if(!r.ok)throw new Error(await r.text());return r.json()}
