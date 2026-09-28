@@ -24,6 +24,8 @@ th,td{text-align:left;padding:.5rem;border-bottom:1px solid var(--bd);white-spac
 .stage{position:relative;width:100%;border:2px solid var(--bd);border-radius:10px;overflow:hidden;background:#000}
 .stage iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;pointer-events:none;background:#fff}
 .fing{position:absolute;left:0;top:0;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;background:rgba(224,49,49,.35);border:2px solid #e03131;pointer-events:none;z-index:5;display:none}
+#viewer.full{position:fixed;inset:0;z-index:50;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;color:#e8eaf3}
+#viewer.full .ctl{width:100%;max-width:640px;justify-content:center}
 .cur{position:absolute;left:0;top:0;width:18px;height:18px;pointer-events:none;z-index:5}
 .cur::before{content:"";display:block;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:16px solid #e03131;transform:rotate(-25deg);filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}
 .rip{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:rgba(224,49,49,.35);border:2px solid #e03131;pointer-events:none;z-index:4;animation:rp .5s ease-out forwards}
@@ -47,10 +49,11 @@ th,td{text-align:left;padding:.5rem;border-bottom:1px solid var(--bd);white-spac
   </div>
   <div class="card" id="player" hidden>
     <div class="two">
-      <div>
+      <div id="viewer">
         <div class="stage" id="stage"><iframe id="ifr" title="Invitación"></iframe><div class="cur" id="cur"></div><div class="fing" id="fing"></div></div>
-        <div class="ctl"><button class="btn p" id="play">Play</button><button class="btn" id="pause">Pause</button><button class="btn" id="restart">Restart</button></div>
+        <div class="ctl"><button class="btn p" id="play">Play</button><button class="btn" id="pause">Pause</button><button class="btn" id="restart">Restart</button><button class="btn" id="full">Pantalla completa</button><button class="btn" id="vid">Descargar video</button></div>
         <div class="ctl"><input type="range" id="bar" min="0" max="1000" value="0" aria-label="Progreso"><span id="clock" class="note">0:00 / 0:00</span></div>
+        <p class="note" id="vmsg"></p>
       </div>
       <div><h2 style="font-size:1rem;margin-top:0">Detalles de la sesión</h2><dl class="grid" id="det"></dl></div>
     </div>
@@ -99,29 +102,30 @@ async function deleteAll(){
     closePlayer();renderList()}catch(e){$('msg').textContent='Error: '+e.message}}
 
 /* ===== Reproductor: el iframe muestra la invitación real; aquí se dibuja el cursor ===== */
-const ifr=$('ifr'),stage=$('stage'),cur=$('cur'),fing=$('fing'),origin=new URL(INVITE_URL).origin;
-let cs=null,idx=0,playing=false,posMs=0,wall=0,raf=0,ready=false;
+const ifr=$('ifr'),stage=$('stage'),cur=$('cur'),fing=$('fing'),viewer=$('viewer'),origin=new URL(INVITE_URL).origin;
+let cs=null,idx=0,playing=false,posMs=0,wall=0,raf=0,ready=false,onEnd=null;
 const send=m=>ifr.contentWindow&&ifr.contentWindow.postMessage(m,origin);
 addEventListener('message',e=>{if(e.origin===origin&&e.data&&e.data.type==='ready'){ready=true;const v=cs&&cs.device.view;if(v&&v.fs)send({type:'init',fs:v.fs});seek(0)}});
 
 function layout(){ // el iframe usa el tamaño real de la ventana grabada y se escala
-  const d=cs.device,v=d.view||{},[fw,fh]=(d.viewport||'390x700').split('x').map(Number),w=v.w||fw,h=v.h||fh,k=stage.clientWidth/w;
+  const d=cs.device,v=d.view||{},[fw,fh]=(d.viewport||'390x700').split('x').map(Number),w=v.w||fw,h=v.h||fh;
+  const full=viewer.classList.contains('full');stage.style.width=full?Math.max(120,Math.min(innerWidth-24,(innerHeight-150)*w/h))+'px':'100%';const k=stage.clientWidth/w;
   ifr.style.width=w+'px';ifr.style.height=h+'px';ifr.style.transform='scale('+k+')';stage.style.height=(h*k)+'px'}
 function apply(ev,quiet){
   const x=(ev.x||0)*stage.clientWidth,y=(ev.y||0)*stage.clientHeight;
-  if(ev.type==='move'||ev.type==='click')cur.style.transform='translate('+x+'px,'+y+'px)';
+  if(ev.type==='move'||ev.type==='click'){cur.style.transform='translate('+x+'px,'+y+'px)';send({type:'pt',x:ev.x,y:ev.y})}
   if(ev.type==='tdown'||ev.type==='tmove'){fing.style.display='block';fing.style.transform='translate('+x+'px,'+y+'px)'}
   if(ev.type==='tup')fing.style.display='none';
   if((ev.type==='click'||ev.type==='tdown')&&!quiet){const d=document.createElement('div');d.className='rip';d.style.left=x+'px';d.style.top=y+'px';stage.appendChild(d);setTimeout(()=>d.remove(),600)}
   if(ev.type==='scroll')send({type:'scroll',p:ev.p});
   if(ev.type==='act')send({type:'act',a:ev.a});
 }
-function seek(ms){if(!cs||!ready)return;send({type:'reset'});cur.style.transform='translate(-30px,-30px)';fing.style.display='none';idx=0;posMs=ms;
+function seek(ms){if(!cs||!ready)return;send({type:'reset',t:ms});cur.style.transform='translate(-30px,-30px)';fing.style.display='none';idx=0;posMs=ms;
   while(idx<cs.events.length&&cs.events[idx].t<=ms)apply(cs.events[idx++],true);ui()}
 function ui(){$('bar').value=cs.duration?Math.round(posMs/cs.duration*1000):0;$('clock').textContent=fmt(posMs)+' / '+fmt(cs.duration)}
 function tick(){if(!playing)return;posMs=Math.min(cs.duration,performance.now()-wall);
   while(idx<cs.events.length&&cs.events[idx].t<=posMs)apply(cs.events[idx++],false);
-  ui();if(posMs>=cs.duration){playing=false;return}raf=requestAnimationFrame(tick)}
+  ui();if(posMs>=cs.duration){playing=false;if(onEnd){const f=onEnd;onEnd=null;f()}return}raf=requestAnimationFrame(tick)}
 function play(){if(!cs||!ready||playing)return;if(posMs>=cs.duration)seek(0);playing=true;wall=performance.now()-posMs;raf=requestAnimationFrame(tick)}
 function pause(){playing=false;cancelAnimationFrame(raf)}
 $('play').onclick=play;$('pause').onclick=pause;$('restart').onclick=()=>{pause();seek(0);play()};
@@ -138,6 +142,48 @@ async function openSession(id){
   $('player').scrollIntoView({behavior:'smooth'});
 }
 addEventListener('resize',()=>{if(cs)layout()});
+
+/* ===== Pantalla completa ===== */
+function toggleFull(){
+  const on=!viewer.classList.contains('full');viewer.classList.toggle('full',on);
+  if(on){const f=viewer.requestFullscreen||viewer.webkitRequestFullscreen;if(f)try{const r=f.call(viewer);if(r&&r.catch)r.catch(()=>{})}catch(e){}} // en iPhone no existe: queda el modo que cubre toda la pantalla
+  else if(document.fullscreenElement)document.exitFullscreen();
+  $('full').textContent=on?'Salir de pantalla completa':'Pantalla completa';if(cs)layout()}
+$('full').onclick=toggleFull;
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&viewer.classList.contains('full')){viewer.classList.remove('full');$('full').textContent='Pantalla completa';if(cs)layout()}});
+
+/* ===== Descargar como video (graba la pestaña recortada al reproductor) ===== */
+const lock=on=>document.querySelectorAll('#player .btn,#bar').forEach(b=>b.disabled=on);
+async function recordVideo(){
+  const vm=$('vmsg');
+  if(!cs||!ready)return;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia||!window.MediaRecorder){vm.textContent='La descarga de video solo funciona en Chrome o Edge desde una computadora.';return}
+  if(viewer.classList.contains('full'))toggleFull();
+  pause();stage.scrollIntoView({block:'center'});
+  let stream;
+  try{stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:30},audio:false,preferCurrentTab:true,selfBrowserSurface:'include'})}
+  catch(e){vm.textContent='Grabación cancelada.';return}
+  const track=stream.getVideoTracks()[0];
+  try{
+    if(window.RestrictionTarget&&track.restrictTo)await track.restrictTo(await RestrictionTarget.fromElement(stage));
+    else if(window.CropTarget&&track.cropTo)await track.cropTo(await CropTarget.fromElement(stage));
+    else vm.textContent='Tu navegador no puede recortar: se grabará toda la pestaña. ';
+  }catch(e){track.stop();vm.textContent='Al compartir, elige "Esta pestaña" (la pestaña actual).';return}
+  const mime=['video/mp4;codecs=avc1','video/webm;codecs=vp9','video/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'';
+  const mr=new MediaRecorder(stream,mime?{mimeType:mime,videoBitsPerSecond:4e6}:{videoBitsPerSecond:4e6}),chunks=[];
+  mr.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  mr.onstop=()=>{stream.getTracks().forEach(t=>t.stop());pause();onEnd=null;lock(false);
+    const blob=new Blob(chunks,{type:mr.mimeType}),a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download='sesion-'+cs.id+(mr.mimeType.includes('mp4')?'.mp4':'.webm');
+    document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),10000);vm.textContent='Video descargado.'};
+  track.onended=()=>{if(mr.state!=='inactive')mr.stop()}; // si detienes "compartir" antes, se guarda lo grabado
+  lock(true);vm.textContent='Grabando... no muevas ni cambies de pestaña hasta que termine.';
+  mr.start(1000);seek(0);
+  await new Promise(r=>setTimeout(r,500));
+  onEnd=()=>setTimeout(()=>{if(mr.state!=='inactive')mr.stop()},700);
+  play();
+}
+$('vid').onclick=recordVideo;
 </script>
 </body>
 </html>
