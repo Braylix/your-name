@@ -23,6 +23,7 @@ th,td{text-align:left;padding:.5rem;border-bottom:1px solid var(--bd);white-spac
 @media (max-width:760px){.two{grid-template-columns:1fr}}
 .stage{position:relative;width:100%;border:2px solid var(--bd);border-radius:10px;overflow:hidden;background:#000}
 .stage iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;pointer-events:none;background:#fff}
+.fing{position:absolute;left:0;top:0;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;background:rgba(224,49,49,.35);border:2px solid #e03131;pointer-events:none;z-index:5;display:none}
 .cur{position:absolute;left:0;top:0;width:18px;height:18px;pointer-events:none;z-index:5}
 .cur::before{content:"";display:block;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:16px solid #e03131;transform:rotate(-25deg);filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}
 .rip{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:rgba(224,49,49,.35);border:2px solid #e03131;pointer-events:none;z-index:4;animation:rp .5s ease-out forwards}
@@ -42,12 +43,12 @@ th,td{text-align:left;padding:.5rem;border-bottom:1px solid var(--bd);white-spac
   <div class="card wrap" id="listCard" hidden>
     <table><thead><tr><th>ID</th><th>Entrada</th><th>Duración</th><th>Dispositivo</th><th>SO</th><th>Navegador</th><th></th></tr></thead><tbody id="rows"></tbody></table>
     <p class="note" id="empty" hidden>Aún no hay sesiones.</p>
-    <button class="btn" id="refresh">Actualizar lista</button>
+    <button class="btn" id="refresh">Actualizar lista</button> <button class="btn" id="delall">Borrar todas</button>
   </div>
   <div class="card" id="player" hidden>
     <div class="two">
       <div>
-        <div class="stage" id="stage"><iframe id="ifr" title="Invitación"></iframe><div class="cur" id="cur"></div></div>
+        <div class="stage" id="stage"><iframe id="ifr" title="Invitación"></iframe><div class="cur" id="cur"></div><div class="fing" id="fing"></div></div>
         <div class="ctl"><button class="btn p" id="play">Play</button><button class="btn" id="pause">Pause</button><button class="btn" id="restart">Restart</button></div>
         <div class="ctl"><input type="range" id="bar" min="0" max="1000" value="0" aria-label="Progreso"><span id="clock" class="note">0:00 / 0:00</span></div>
       </div>
@@ -69,7 +70,7 @@ $('go').onclick=async()=>{
   try{const r=await fetch(SB_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:$('em').value,password:$('pw').value})});
     const j=await r.json();if(!r.ok)throw new Error(j.msg||j.error_description||'Login fallido');
     TOKEN=j.access_token;$('login').hidden=true;$('listCard').hidden=false;renderList()}catch(e){$('msg').textContent=e.message}};
-$('refresh').onclick=()=>renderList();
+$('refresh').onclick=()=>renderList();$('delall').onclick=()=>deleteAll();
 async function renderList(){
   try{const [ss,cc]=await Promise.all([sb('/rest/v1/sessions?select=id,started_at,device&order=started_at.desc&limit=50'),sb('/rest/v1/session_chunks?select=session_id,dur&order=dur.desc&limit=1000')]);
     const dur={};cc.forEach(c=>{if(!(c.session_id in dur))dur[c.session_id]=c.dur});
@@ -77,26 +78,45 @@ async function renderList(){
   const tb=$('rows');tb.innerHTML='';$('empty').hidden=list.length>0;
   list.forEach(x=>{const tr=document.createElement('tr');
     [x.id,new Date(x.started_at).toLocaleString(),fmt(x.duration),x.device.type,x.device.os,x.device.browser].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.appendChild(td)});
-    const td=document.createElement('td'),b=document.createElement('button');b.className='btn p';b.textContent='Reproducir';b.onclick=()=>openSession(x.id);td.appendChild(b);tr.appendChild(td);tb.appendChild(tr)});
+    const td=document.createElement('td'),b=document.createElement('button');b.className='btn p';b.textContent='Reproducir';b.onclick=()=>openSession(x.id);const e=document.createElement('button');e.className='btn';e.textContent='Eliminar';e.style.marginLeft='.4rem';e.onclick=()=>deleteOne(x.id);td.append(b,e);tr.appendChild(td);tb.appendChild(tr)});
 }
 
+/* ===== Eliminar (pide confirmación, sin contraseña) ===== */
+async function del(path,rep){const r=await fetch(SB_URL+path,{method:'DELETE',headers:{apikey:SB_KEY,Authorization:'Bearer '+TOKEN,Prefer:rep?'return=representation':'return=minimal'}});
+  if(!r.ok)throw new Error(await r.text());return rep?r.json():null}
+function closePlayer(){pause();cs=null;$('player').hidden=true}
+async function deleteOne(id){
+  if(!confirm('¿Seguro que quieres eliminar la sesión '+id+'? No se puede deshacer.'))return;
+  try{await del('/rest/v1/session_chunks?session_id=eq.'+encodeURIComponent(id),false);
+    const r=await del('/rest/v1/sessions?id=eq.'+encodeURIComponent(id),true);
+    if(!r.length)throw new Error('No se pudo borrar. ¿Ejecutaste el SQL de permisos para borrar?');
+    if(cs&&cs.id===id)closePlayer();renderList()}catch(e){$('msg').textContent='Error: '+e.message}}
+async function deleteAll(){
+  if(!confirm('¿Seguro que quieres eliminar TODAS las grabaciones? No se puede deshacer.'))return;
+  try{await del('/rest/v1/session_chunks?session_id=not.is.null',false);
+    const r=await del('/rest/v1/sessions?id=not.is.null',true);
+    if(list.length&&!r.length)throw new Error('No se pudo borrar. ¿Ejecutaste el SQL de permisos para borrar?');
+    closePlayer();renderList()}catch(e){$('msg').textContent='Error: '+e.message}}
+
 /* ===== Reproductor: el iframe muestra la invitación real; aquí se dibuja el cursor ===== */
-const ifr=$('ifr'),stage=$('stage'),cur=$('cur'),origin=new URL(INVITE_URL).origin;
+const ifr=$('ifr'),stage=$('stage'),cur=$('cur'),fing=$('fing'),origin=new URL(INVITE_URL).origin;
 let cs=null,idx=0,playing=false,posMs=0,wall=0,raf=0,ready=false;
 const send=m=>ifr.contentWindow&&ifr.contentWindow.postMessage(m,origin);
-addEventListener('message',e=>{if(e.origin===origin&&e.data&&e.data.type==='ready'){ready=true;seek(0)}});
+addEventListener('message',e=>{if(e.origin===origin&&e.data&&e.data.type==='ready'){ready=true;const v=cs&&cs.device.view;if(v&&v.fs)send({type:'init',fs:v.fs});seek(0)}});
 
 function layout(){ // el iframe usa el tamaño real de la ventana grabada y se escala
-  const [w,h]=(cs.device.viewport||'390x700').split('x').map(Number),k=stage.clientWidth/w;
+  const d=cs.device,v=d.view||{},[fw,fh]=(d.viewport||'390x700').split('x').map(Number),w=v.w||fw,h=v.h||fh,k=stage.clientWidth/w;
   ifr.style.width=w+'px';ifr.style.height=h+'px';ifr.style.transform='scale('+k+')';stage.style.height=(h*k)+'px'}
 function apply(ev,quiet){
   const x=(ev.x||0)*stage.clientWidth,y=(ev.y||0)*stage.clientHeight;
   if(ev.type==='move'||ev.type==='click')cur.style.transform='translate('+x+'px,'+y+'px)';
-  if(ev.type==='click'&&!quiet){const d=document.createElement('div');d.className='rip';d.style.left=x+'px';d.style.top=y+'px';stage.appendChild(d);setTimeout(()=>d.remove(),600)}
+  if(ev.type==='tdown'||ev.type==='tmove'){fing.style.display='block';fing.style.transform='translate('+x+'px,'+y+'px)'}
+  if(ev.type==='tup')fing.style.display='none';
+  if((ev.type==='click'||ev.type==='tdown')&&!quiet){const d=document.createElement('div');d.className='rip';d.style.left=x+'px';d.style.top=y+'px';stage.appendChild(d);setTimeout(()=>d.remove(),600)}
   if(ev.type==='scroll')send({type:'scroll',p:ev.p});
   if(ev.type==='act')send({type:'act',a:ev.a});
 }
-function seek(ms){if(!cs||!ready)return;send({type:'reset'});cur.style.transform='translate(-30px,-30px)';idx=0;posMs=ms;
+function seek(ms){if(!cs||!ready)return;send({type:'reset'});cur.style.transform='translate(-30px,-30px)';fing.style.display='none';idx=0;posMs=ms;
   while(idx<cs.events.length&&cs.events[idx].t<=ms)apply(cs.events[idx++],true);ui()}
 function ui(){$('bar').value=cs.duration?Math.round(posMs/cs.duration*1000):0;$('clock').textContent=fmt(posMs)+' / '+fmt(cs.duration)}
 function tick(){if(!playing)return;posMs=Math.min(cs.duration,performance.now()-wall);
