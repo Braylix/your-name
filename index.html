@@ -39,23 +39,23 @@ th,td{text-align:left;padding:.5rem;border-bottom:1px solid var(--bd);white-spac
   <h1>Panel de sesiones</h1>
   <div class="card" id="login"><b>Acceso del administrador</b><br>
     <input id="em" type="email" placeholder="Correo" autocomplete="username">
-    <input id="pw" type="password" placeholder="Contraseña" autocomplete="current-password">
+    <input id="pw" type="password" placeholder="Contrase&#241;a" autocomplete="current-password">
     <button class="btn p" id="go">Entrar</button></div>
   <p class="note" id="msg"></p>
   <div class="card wrap" id="listCard" hidden>
-    <table><thead><tr><th>ID</th><th>Entrada</th><th>Duración</th><th>Dispositivo</th><th>SO</th><th>Navegador</th><th></th></tr></thead><tbody id="rows"></tbody></table>
-    <p class="note" id="empty" hidden>Aún no hay sesiones.</p>
+    <table><thead><tr><th>ID</th><th>Entrada</th><th>Duraci&#243;n</th><th>Dispositivo</th><th>SO</th><th>Navegador</th><th></th></tr></thead><tbody id="rows"></tbody></table>
+    <p class="note" id="empty" hidden>A&#250;n no hay sesiones.</p>
     <button class="btn" id="refresh">Actualizar lista</button> <button class="btn" id="delall">Borrar todas</button>
   </div>
   <div class="card" id="player" hidden>
     <div class="two">
       <div id="viewer">
-        <div class="stage" id="stage"><iframe id="ifr" title="Invitación"></iframe><div class="cur" id="cur"></div><div class="fing" id="fing"></div></div>
+        <div class="stage" id="stage"><iframe id="ifr" title="Invitaci&#243;n"></iframe><div class="cur" id="cur"></div><div class="fing" id="fing"></div></div>
         <div class="ctl"><button class="btn p" id="play">Play</button><button class="btn" id="pause">Pause</button><button class="btn" id="restart">Restart</button><button class="btn" id="full">Pantalla completa</button><button class="btn" id="vid">Descargar video</button></div>
         <div class="ctl"><input type="range" id="bar" min="0" max="1000" value="0" aria-label="Progreso"><span id="clock" class="note">0:00 / 0:00</span></div>
         <p class="note" id="vmsg"></p>
       </div>
-      <div><h2 style="font-size:1rem;margin-top:0">Detalles de la sesión</h2><dl class="grid" id="det"></dl></div>
+      <div><h2 style="font-size:1rem;margin-top:0">Detalles de la sesi&#243;n</h2><dl class="grid" id="det"></dl></div>
     </div>
   </div>
 </main>
