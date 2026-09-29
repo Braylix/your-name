@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>Te invito a ver Your Name</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;800&family=Zen+Maru+Gothic:wght@400;700&display=swap">
+<style>
+:root{--night:#17123a;--violet:#4a3b8c;--dusk:#d9628b;--amber:#ffb36b;--paper:#fff3e6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;min-height:100vh;color:var(--paper);font-family:"Zen Maru Gothic","Hiragino Sans",system-ui,sans-serif;
+background:linear-gradient(180deg,var(--night) 0%,var(--violet) 45%,var(--dusk) 82%,var(--amber) 100%) fixed;overflow-x:hidden}
+.stars{position:fixed;inset:0;pointer-events:none;opacity:.8;
+background-image:radial-gradient(1.5px 1.5px at 12% 18%,#fff,transparent),radial-gradient(1px 1px at 78% 12%,#fff,transparent),
+radial-gradient(1.5px 1.5px at 40% 30%,#fff,transparent),radial-gradient(1px 1px at 90% 40%,#fff,transparent),
+radial-gradient(1px 1px at 25% 55%,#fff,transparent),radial-gradient(1.5px 1.5px at 63% 22%,#fff,transparent),radial-gradient(1px 1px at 5% 70%,#fff,transparent)}
+.comet{position:fixed;top:8%;left:-20%;width:180px;height:3px;border-radius:3px;
+background:linear-gradient(90deg,transparent,var(--amber),#fff);transform:rotate(24deg);filter:drop-shadow(0 0 8px var(--amber));
+animation:fly 2.6s .5s ease-in forwards;opacity:0}
+@keyframes fly{0%{opacity:1;left:-20%;top:6%}100%{opacity:0;left:110%;top:60%}}
+main{position:relative;max-width:36rem;margin:0 auto;padding:12vh 1.5rem 6rem;text-align:center}
+.para{font-size:1.05rem;margin:0 0 1.5rem;color:var(--amber)}
+h1{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","MS Mincho",Georgia,serif;font-weight:800;font-size:clamp(2.6rem,11vw,4.6rem);line-height:1.05;margin:0 0 .6rem;letter-spacing:.01em}
+.jp{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","MS Mincho",Georgia,serif;font-size:1.2rem;opacity:.85;margin:0 0 2.5rem}
+p{line-height:1.7;font-size:1.1rem;margin:0 auto 1.4rem;max-width:30rem}
+.fecha{display:inline-block;margin:1rem 0 2rem;padding:1.1rem 2rem;border:2px solid var(--amber);border-radius:999px;
+font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","MS Mincho",Georgia,serif;font-size:1.5rem;font-weight:800;background:rgba(23,18,58,.45)}
+.fecha small{display:block;font-family:"Zen Maru Gothic",sans-serif;font-size:.9rem;font-weight:400;opacity:.85;margin-top:.2rem}
+.btns{display:flex;flex-wrap:nowrap;align-items:center;gap:.9rem;justify-content:center;margin-top:1.6rem}
+button,.wa{font:inherit;font-weight:700;font-size:1.05rem;border-radius:999px;padding:.9rem 1.7rem;cursor:pointer;text-decoration:none;transition:transform .18s,box-shadow .18s,background .18s}
+#si{background:var(--amber);color:var(--night);border:0;padding:.86em 1.62em;transition:font-size .22s ease,transform .18s,box-shadow .18s}
+#no{background:transparent;color:var(--paper);border:2px solid var(--paper);padding:.9rem 1.62em;display:inline-flex;align-items:center;justify-content:center;line-height:1;flex-shrink:1;min-width:0;white-space:nowrap;transition:font-size .15s ease,transform .18s,background .18s}
+#si{flex-shrink:0}
+#si:hover,#si.hov{transform:scale(1.06);box-shadow:0 6px 18px rgba(255,179,107,.45)}
+#no:hover{transform:scale(1.04);background:rgba(255,255,255,.12)}
+#si:active{transform:scale(.97)}
+#si.max{animation:bump .4s ease-out}
+@keyframes bump{0%{transform:scale(1)}45%{transform:scale(1.1)}100%{transform:scale(1)}}
+#no:active{transform:scale(.97);background:rgba(255,255,255,.2)}
+button:disabled{opacity:1}
+#si.chosen{cursor:default;box-shadow:0 0 0 4px rgba(255,179,107,.22),0 0 22px 4px rgba(255,179,107,.5);animation:glow 2.4s ease-in-out infinite}
+#no.chosen{cursor:default;opacity:.35;transform:none!important}
+@keyframes glow{0%,100%{box-shadow:0 0 0 4px rgba(255,179,107,.22),0 0 18px 2px rgba(255,179,107,.4)}50%{box-shadow:0 0 0 6px rgba(255,179,107,.14),0 0 26px 6px rgba(255,179,107,.6)}}
+button:focus-visible,.wa:focus-visible{outline:3px solid #fff;outline-offset:3px}
+#resp{margin-top:2.2rem;min-height:5rem}
+#resp .msg{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","MS Mincho",Georgia,serif;font-size:1.5rem;font-weight:800;margin:0 0 1rem}
+.wa{display:inline-block;background:var(--night);color:var(--paper);border:2px solid var(--amber)}
+.aviso{font-size:1.05rem;margin:0 auto}
+.pie{margin-top:3rem;font-size:1.2rem;font-weight:700;color:var(--paper);text-shadow:0 1px 8px rgba(23,18,58,.7)}
+@media (prefers-reduced-motion:reduce){.comet{animation:none;display:none}#si:hover,#no:hover{transform:none}#si.max{animation:none}#si.chosen{animation:none}}
+</style>
+</head>
+<body>
+<div class="stars"></div><div class="comet"></div>
+<main>
+  <p class="para" id="para">Para mi mejor amiga</p>
+  <h1>Your Name</h1>
+  <p class="jp">&#21531;&#12398;&#21517;&#12399;&#12290;</p>
+  <p>Hay pel&#237;culas que hay que ver con la persona correcta, y yo ya s&#233; con qui&#233;n. Prepara los pa&#241;uelos, un snack y tu mejor cara de llanto: te invito a ver esta historia conmigo.</p>
+  <div class="fecha">Lunes 5 de octubre<small>hora a tu gusto, yo me adapto</small></div>
+  <p>Cuando el cielo se ponga entre naranja y violeta, empezamos.</p>
+  <div class="btns" id="btns">
+    <button id="si" type="button">&#161;S&#237;, voy!</button>
+    <button id="no" type="button">D&#233;jame pensarlo</button>
+  </div>
+  <div id="resp" aria-live="polite"></div>
+  <p class="pie">Si la ves antes que yo, que sepas que igual te hago repetirla.</p>
+</main>
+<script>
+(function(){
+  var SB_URL="https://mjbfqpvaymdbniiflquo.supabase.co";
+  var SB_KEY="sb_publishable_WWUhF8oyKHeQyVa_qfDFSA_4SM1QyLJ"; /* clave pública, nunca la secret */
+  var params=new URLSearchParams(location.search), replay=params.get("replay")==="1";
+  var q=params.get("para");
+  if(q)document.getElementById("para").textContent="Para "+q;
+  var resp=document.getElementById("resp"),si=document.getElementById("si"),no=document.getElementById("no"),btns=document.getElementById("btns"),intentos=0;
+  no.style.height=no.getBoundingClientRect().height+"px"; /* se fija una sola vez: nunca vuelve a cambiar */
+  var frases=["Esa opción no existe","Última oportunidad…","Ok, ya te pusiste dramática"];
+  function fitRow(){ /* "no" solo se achica si, tras crecer "sí", ya no caben los dos en la misma fila */
+    no.style.fontSize="";var steps=0;
+    while(btns.scrollWidth>btns.clientWidth+1&&steps<60){
+      var cur=parseFloat(getComputedStyle(no).fontSize),next=Math.max(cur-1,11);
+      if(next===cur)break;no.style.fontSize=next+"px";steps++;
+    }
+  }
+  function doSi(){si.style.fontSize="";si.style.transform="";si.classList.remove("max");fitRow();
+    si.classList.add("chosen");si.disabled=true;no.classList.add("chosen");no.disabled=true;
+    resp.innerHTML='<p class="msg">¡Perfecto! Ya es plan 🌠</p><p class="aviso">Ahora avísame por mensaje, porque esta página no me dice nada jaja</p>'}
+  var MAXCREC=13,FINAL=1+MAXCREC*.12,BASE=1.05; /* número de "no" tras el cual deja de crecer, y su tamaño final (en rem) */
+  function doNo(){if(si.classList.contains("chosen"))return;no.textContent=frases[Math.min(intentos,frases.length-1)];intentos++;
+    if(intentos>=MAXCREC){
+      si.style.fontSize=(BASE*FINAL)+"rem";
+      si.classList.remove("max");void si.offsetWidth;si.classList.add("max"); /* reinicia el golpe en cada clic */
+    }else si.style.fontSize=(BASE*(1+intentos*.12))+"rem";
+    fitRow();}
+  si.addEventListener("click",function(){doSi();rec("act",{a:"si"})});
+  no.addEventListener("click",function(){doNo();rec("act",{a:"no"})});
+
+  /* ---- Modo reproducción: el panel (otra página) controla esta con postMessage ---- */
+  if(replay){
+    var st=document.createElement("style");st.textContent="html{scrollbar-width:none}html::-webkit-scrollbar{display:none}@media (prefers-reduced-motion:reduce){.comet{display:block!important}}#si.hov{transform:scale(1.06)}";document.head.appendChild(st);
+    var comet=document.querySelector(".comet");
+    function syncComet(ms){if(!comet)return;comet.style.animation="none";void comet.offsetWidth;comet.style.animation="fly 2.6s "+((500-ms)/1000)+"s ease-in forwards"} /* el cometa se sincroniza con el tiempo de la reproducción */
+    window.addEventListener("message",function(e){
+      if(e.source!==parent)return; var m=e.data||{};
+      if(m.type==="init"&&m.fs)document.documentElement.style.fontSize=m.fs+"px";
+      if(m.type==="reset"){resp.innerHTML="";intentos=0;no.textContent="Déjame pensarlo";no.style.fontSize="";si.style.fontSize="";si.style.transform="";si.classList.remove("hov");si.classList.remove("max");si.classList.remove("chosen");si.disabled=false;no.classList.remove("chosen");no.disabled=false;scrollTo(0,0);syncComet(m.t||0)}
+      if(m.type==="scroll"){scrollTo(0,m.p*(document.documentElement.scrollHeight-innerHeight))}
+      if(m.type==="act"){m.a==="si"?doSi():doNo()}
+      if(m.type==="pt"){var de2=document.documentElement,el=document.elementFromPoint(m.x*de2.clientWidth,m.y*de2.clientHeight);si.classList.toggle("hov",!!(el&&el.closest&&el.closest("#si")))}
+    });
+    var sent=false;function ready(){if(sent)return;sent=true;parent.postMessage({type:"ready"},"*")}
+    function afterFonts(){(document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(function(){setTimeout(ready,200)})}
+    if(document.readyState==="complete")afterFonts();else addEventListener("load",afterFonts);
+    setTimeout(ready,5000); /* espera a que carguen las tipografías antes de reproducir */
+    window.rec=function(){};return;
+  }
+
+  /* ---- Modo grabación ---- */
+  function deviceInfo(){
+    var ua=navigator.userAgent,ud=navigator.userAgentData,touch=navigator.maxTouchPoints>0;
+    var tablet=/iPad|Tablet/.test(ua)||(/Android/.test(ua)&&!/Mobile/.test(ua))||(touch&&/Macintosh/.test(ua));
+    var type=tablet?"Tablet":(/Mobi|iPhone|Android/.test(ua)||(ud&&ud.mobile))?"Celular":"PC";
+    var os=/iPhone|iPod/.test(ua)?"iOS":(touch&&/Macintosh/.test(ua))||/iPad/.test(ua)?"iPadOS":/Android/.test(ua)?"Android":/Windows/.test(ua)?"Windows":/Macintosh/.test(ua)?"macOS":/Linux/.test(ua)?"Linux":"Otro";
+    var br=/Edg\//.test(ua)?"Edge":/OPR\//.test(ua)?"Opera":/Firefox\//.test(ua)?"Firefox":/Chrome\//.test(ua)?"Chrome":/Safari\//.test(ua)?"Safari":"Otro";
+    return {type:type,os:os,browser:br,ua:ua,
+      hints:ud?(ud.brands.map(function(b){return b.brand+" "+b.version}).join(", ")+" | plataforma: "+ud.platform+" | móvil: "+ud.mobile):"No disponibles",
+      screen:screen.width+"x"+screen.height,viewport:innerWidth+"x"+innerHeight,dpr:devicePixelRatio,
+      orientation:(screen.orientation&&screen.orientation.type)||(innerWidth>innerHeight?"landscape":"portrait"),
+      lang:navigator.language,tz:Intl.DateTimeFormat().resolvedOptions().timeZone};
+  }
+  function ins(table,row){try{fetch(SB_URL+"/rest/v1/"+table,{method:"POST",keepalive:true,headers:{apikey:SB_KEY,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify(row)}).catch(function(){})}catch(e){}}
+  var t0=performance.now(),S={id:"S-"+Math.random().toString(36).slice(2,7).toUpperCase(),start:new Date().toISOString(),events:[]};
+  var de=document.documentElement,dev=deviceInfo();
+  dev.view={w:de.clientWidth,h:de.clientHeight,fs:parseFloat(getComputedStyle(de).fontSize)}; /* tamaño real donde se vio */
+  ins("sessions",{id:S.id,started_at:S.start,device:dev});
+  window.rec=function(type,d){if(S.events.length<5000)S.events.push(Object.assign({t:Math.round(performance.now()-t0),type:type},d))};
+  var seq=0,sent=0;
+  function flush(final){var ev=S.events.slice(sent);if(!ev.length&&!final)return;sent=S.events.length;
+    ins("session_chunks",{session_id:S.id,seq:seq++,dur:Math.round(performance.now()-t0),events:ev})}
+  setInterval(function(){flush(false)},3000);
+  addEventListener("pagehide",function(){flush(true)});
+  document.addEventListener("visibilitychange",function(){if(document.hidden)flush(true)});
+  var last=0;
+  function pos(p){return {x:+(p.clientX/de.clientWidth).toFixed(4),y:+(p.clientY/de.clientHeight).toFixed(4)}}
+  /* Mouse (PC): puntero y clics. Se ignoran los eventos de dedo para que no quede un puntero fantasma. */
+  document.addEventListener("pointermove",function(e){if(e.pointerType==="touch")return;var n=performance.now();if(n-last<50)return;last=n;rec("move",pos(e))});
+  document.addEventListener("pointerdown",function(e){if(e.pointerType!=="touch")rec("click",pos(e))});
+  /* Celular: solo dónde está el dedo mientras toca la pantalla */
+  document.addEventListener("touchstart",function(e){rec("tdown",pos(e.touches[0]))},{passive:true});
+  document.addEventListener("touchmove",function(e){var n=performance.now();if(n-last<50)return;last=n;rec("tmove",pos(e.touches[0]))},{passive:true});
+  function tend(){rec("tup",{})}
+  addEventListener("resize",fitRow);
+  document.addEventListener("touchend",tend,{passive:true});document.addEventListener("touchcancel",tend,{passive:true});
+  addEventListener("scroll",function(){var m=document.documentElement.scrollHeight-innerHeight;rec("scroll",{p:m>0?+(scrollY/m).toFixed(4):0})},{passive:true});
+})();
+</script>
+</body>
+</html>
